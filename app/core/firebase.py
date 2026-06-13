@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import firebase_admin
@@ -20,7 +21,15 @@ def _initialize_firebase() -> None:
         options["databaseURL"] = settings.firebase_database_url
 
     try:
-        if settings.firebase_credentials_path:
+        if settings.firebase_credentials_json:
+            try:
+                credential_payload = json.loads(settings.firebase_credentials_json)
+            except json.JSONDecodeError as exc:
+                raise ServiceUnavailableError(
+                    "Firebase credentials JSON is invalid. Verify FIREBASE_CREDENTIALS_JSON."
+                ) from exc
+            cred = credentials.Certificate(credential_payload)
+        elif settings.firebase_credentials_path:
             credential_path = Path(settings.firebase_credentials_path)
             if not credential_path.is_absolute():
                 credential_path = BASE_DIR / credential_path
@@ -35,7 +44,7 @@ def _initialize_firebase() -> None:
         firebase_admin.initialize_app(cred, options=options)
     except (DefaultCredentialsError, ValueError) as exc:
         raise ServiceUnavailableError(
-            "Firebase credentials are not configured correctly. Verify FIREBASE_CREDENTIALS_PATH or ADC."
+            "Firebase credentials are not configured correctly. Verify FIREBASE_CREDENTIALS_JSON, FIREBASE_CREDENTIALS_PATH or ADC."
         ) from exc
 
 

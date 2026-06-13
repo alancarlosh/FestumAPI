@@ -47,6 +47,7 @@ cp .env.example .env
 - `JWT_ALGORITHM`
 - `ACCESS_TOKEN_EXPIRE_MINUTES`
 - `FIREBASE_PROJECT_ID`
+- `FIREBASE_CREDENTIALS_JSON` (recomendado para Render/produccion)
 - `FIREBASE_CREDENTIALS_PATH`
 - `FIREBASE_DATABASE_URL`
 - `FIREBASE_STORAGE_BUCKET`
@@ -62,6 +63,32 @@ cp .env.example .env
 ```bash
 uvicorn app.main:app --reload
 ```
+
+## Deploy en Render
+La API ya incluye [`render.yaml`](/Users/alancarloshernandezhernandez/PycharmProjects/FestumAPI/render.yaml) para despliegue como Web Service.
+
+Comando de arranque en Render:
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+Variables recomendadas en Render:
+- `ENVIRONMENT=production`
+- `APP_DEBUG=false`
+- `JWT_SECRET_KEY`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CREDENTIALS_JSON`
+- `FIREBASE_DATABASE_URL`
+- `FIREBASE_STORAGE_BUCKET`
+- `AWS_REGION`
+- `S3_BUCKET_NAME`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `ALLOWED_ORIGINS`
+
+Para Firebase en Render:
+- usar `FIREBASE_CREDENTIALS_JSON` con el JSON completo de la service account en una variable secreta.
+- no depender de `firebase-service-account.json` en produccion.
 
 Documentación:
 - Swagger: `http://localhost:8000/docs`

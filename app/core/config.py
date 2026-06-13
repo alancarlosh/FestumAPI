@@ -1,3 +1,4 @@
+import json
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -20,6 +21,9 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = Field(default=60, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
 
     firebase_project_id: str | None = Field(default=None, alias="FIREBASE_PROJECT_ID")
+    firebase_credentials_json: str | None = Field(
+        default=None, alias="FIREBASE_CREDENTIALS_JSON"
+    )
     firebase_credentials_path: str | None = Field(
         default=None, alias="FIREBASE_CREDENTIALS_PATH"
     )
@@ -65,6 +69,16 @@ class Settings(BaseSettings):
         if not normalized:
             return None
         return normalized.rstrip("/")
+
+    @field_validator("firebase_credentials_json", mode="before")
+    @classmethod
+    def normalize_firebase_credentials_json(cls, value: str | dict | None) -> str | None:
+        if value is None:
+            return None
+        if isinstance(value, dict):
+            return json.dumps(value)
+        normalized = str(value).strip()
+        return normalized or None
 
     @property
     def allowed_origins_list(self) -> list[str]:
