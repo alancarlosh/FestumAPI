@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     firebase_storage_bucket: str | None = Field(
         default=None, alias="FIREBASE_STORAGE_BUCKET"
     )
+    image_storage_backend: Literal["local", "s3"] = Field(
+        default="local", alias="IMAGE_STORAGE_BACKEND"
+    )
+    local_storage_path: str = Field(default="uploads", alias="LOCAL_STORAGE_PATH")
+    media_public_path: str = Field(default="/media", alias="MEDIA_PUBLIC_PATH")
+    local_public_base_url: str | None = Field(default=None, alias="LOCAL_PUBLIC_BASE_URL")
     aws_region: str | None = Field(default=None, alias="AWS_REGION")
     s3_bucket_name: str | None = Field(default=None, alias="S3_BUCKET_NAME")
     aws_access_key_id: str | None = Field(default=None, alias="AWS_ACCESS_KEY_ID")
@@ -63,6 +69,28 @@ class Settings(BaseSettings):
     @field_validator("s3_public_base_url", mode="before")
     @classmethod
     def normalize_s3_public_base_url(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = str(value).strip()
+        if not normalized:
+            return None
+        return normalized.rstrip("/")
+
+    @field_validator("local_storage_path")
+    @classmethod
+    def normalize_local_storage_path(cls, value: str) -> str:
+        normalized = str(value).strip()
+        return normalized or "uploads"
+
+    @field_validator("media_public_path")
+    @classmethod
+    def normalize_media_public_path(cls, value: str) -> str:
+        normalized = str(value).strip() or "/media"
+        return "/" + normalized.strip("/")
+
+    @field_validator("local_public_base_url", mode="before")
+    @classmethod
+    def normalize_local_public_base_url(cls, value: str | None) -> str | None:
         if value is None:
             return None
         normalized = str(value).strip()

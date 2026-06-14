@@ -532,10 +532,14 @@ class ProviderProductService:
 
         settings = get_settings()
         bucket_name = str(settings.s3_bucket_name or "").strip()
+        media_prefix = settings.media_public_path.strip("/")
         if not (
             raw_value.startswith("providers/")
             or raw_value.startswith("users/")
+            or raw_value.startswith(f"{settings.media_public_path.rstrip('/')}/")
+            or raw_value.startswith(f"{media_prefix}/")
             or raw_value.startswith("s3://")
+            or (settings.local_public_base_url and raw_value.startswith(settings.local_public_base_url))
             or (bucket_name and bucket_name in raw_value)
         ):
             return None

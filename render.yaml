@@ -2,10 +2,14 @@ services:
   - type: web
     name: festum-api
     env: python
-    plan: free
+    plan: starter
     autoDeploy: true
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    disk:
+      name: festum-uploads
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: ENVIRONMENT
         value: production
@@ -35,15 +39,13 @@ services:
         sync: false
       - key: FIREBASE_STORAGE_BUCKET
         sync: false
-      - key: AWS_REGION
-        sync: false
-      - key: S3_BUCKET_NAME
-        sync: false
-      - key: AWS_ACCESS_KEY_ID
-        sync: false
-      - key: AWS_SECRET_ACCESS_KEY
-        sync: false
-      - key: S3_PUBLIC_BASE_URL
-        sync: false
+      - key: IMAGE_STORAGE_BACKEND
+        value: local
+      - key: LOCAL_STORAGE_PATH
+        value: /var/data/uploads
+      - key: MEDIA_PUBLIC_PATH
+        value: /media
+      - key: LOCAL_PUBLIC_BASE_URL
+        value: https://festum-api.onrender.com/media
       - key: ALLOWED_ORIGINS
         sync: false
